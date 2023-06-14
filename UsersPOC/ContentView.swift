@@ -57,7 +57,7 @@ struct ContentView: View {
                 })
             }
             .padding()
-            .navigationTitle("Chat Bot Home")
+            .navigationTitle("Chat Home")
         }
         
         
