@@ -15,20 +15,20 @@ protocol UserServiceProtocol {
 
 class UserService: UserServiceProtocol {
     
-    var url: URL
+    var url: URL? = nil
     
     init(urlString: String) {
         guard let url = URL(string: urlString) else {
             // better error handling needed
             print(NetworkError.invalidURL)
-            self.url = URL(string: "bad")!
+            self.url = nil
             return
         }
         self.url = url
     }
     
     func getUsers() -> AnyPublisher<[UserModel], Error> {
-        URLSession.shared.dataTaskPublisher(for: url)
+        URLSession.shared.dataTaskPublisher(for: url!)
             .tryMap { data, response in
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode >= 200, httpResponse.statusCode < 300 else {
                     throw NetworkError.responseError
@@ -44,10 +44,10 @@ class UserService: UserServiceProtocol {
 
 class MockUserService: UserServiceProtocol {
     
-    var testResponse: MockSuccessResult
+    var testResponse: MockResult
     
-    init(testResponse: MockSuccessResult?) {
-        self.testResponse = testResponse ?? MockSuccessResult(data: [
+    init(testResponse: MockResult?) {
+        self.testResponse = testResponse ?? MockResult(data: [
             UserModel(id: 1, name: "Mock One", username: "mock_one", email: "mock1@gmail.com"),
             UserModel(id: 2, name: "Mock Two", username: "mock_two", email: "mock2@gmail.com")
         ], response: MockStatusCode(statusCode: 200))
@@ -59,17 +59,20 @@ class MockUserService: UserServiceProtocol {
                 print(dataAndresponse.response)
                 let httpResponse: MockStatusCode = dataAndresponse.response
                 print(httpResponse.statusCode)
-                if httpResponse.statusCode < 200, httpResponse.statusCode > 299 {
+                if httpResponse.statusCode < 200 || httpResponse.statusCode > 299 {
                     throw NetworkError.responseError
                 }
                 return dataAndresponse.data
+            }
+            .mapError { error in
+                NetworkError.responseError
             }
             .eraseToAnyPublisher()
     }
 }
 
 extension MockUserService {
-    struct MockSuccessResult {
+    struct MockResult {
         var data: [UserModel]
         var response: MockStatusCode
     }
