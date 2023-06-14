@@ -52,6 +52,7 @@ struct UsersShowView: View {
         .background(.gray)
         .onAppear {
             usersVm.fetchUserShow(id: userId)
+            // failing to load actual user in production
             self.name = (usersVm.userShow?.name ?? "Place")!
             self.email = (usersVm.userShow?.email ?? "fake@email.com")!
             self.username = (usersVm.userShow?.username ?? "place__")!
@@ -61,6 +62,8 @@ struct UsersShowView: View {
 
 struct UsersShowView_Previews: PreviewProvider {
     static var previews: some View {
-        UsersShowView(userService: MockUserService(testResponse: nil), userId: 1)
+        let checkingState: Bool = ProcessInfo.processInfo.arguments.contains("ProductionState") ? true : false
+        let service: UserServiceProtocol = checkingState ? UserService(urlString: "https://jsonplaceholder.typicode.com/users") : MockUserService(testResponse: nil)
+        UsersShowView(userService: service, userId: 1)
     }
 }

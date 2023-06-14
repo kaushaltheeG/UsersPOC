@@ -38,6 +38,7 @@ class UsersViewModel: ObservableObject {
     
     func fetchUserShow(id: Int) {
         userService.getUsers()
+            .receive(on: DispatchQueue.main)
             .map { users in
                 // returns an array
                 return users.filter { $0.id == id }

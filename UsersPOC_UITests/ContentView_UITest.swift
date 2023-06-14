@@ -45,6 +45,8 @@ final class ContentView_UITest: XCTestCase {
         usersIndexNavigationBar.buttons["Chat Home"].tap()
         XCTAssertFalse(usersIndexNavigationBar.exists)
         XCTAssertTrue(chatWithUserNavLink.exists)
+        
+        
     }
     
     func test_ContentView_showAlertButton_shouldDisplayAlert() {

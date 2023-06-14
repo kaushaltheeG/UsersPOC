@@ -10,6 +10,7 @@ import SwiftUI
 struct UserPannelsView: View {
     @State var name: String
     @State var id: Int
+    @State var checkingState: Bool = ProcessInfo.processInfo.arguments.contains("ProductionState") ? true : false
     
     init(name: String, id: Int) {
         self.name = name
@@ -17,7 +18,7 @@ struct UserPannelsView: View {
     }
     
     var body: some View {
-        NavigationLink(destination: UsersShowView(userService: MockUserService(testResponse: nil), userId: id), label: {
+        NavigationLink(destination: UsersShowView(userService: checkingState ? UserService(urlString: "https://jsonplaceholder.typicode.com/users") : MockUserService(testResponse: nil), userId: id), label: {
                 HStack(spacing: 0){
                     Text(String(name.prefix(1)))
                         .padding()
